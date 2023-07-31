@@ -59,6 +59,7 @@ var nodeSchemaV1 = schema.Schema{
 			Description: "Settings for the Lightning Node",
 			Required:    true,
 			Attributes: map[string]schema.Attribute{
+				// Required fields.
 				"autopilot": schema.BoolAttribute{
 					Description: "When enabled, LND will turn on its autopilot feature",
 					Required:    true,
@@ -88,6 +89,85 @@ var nodeSchemaV1 = schema.Schema{
 					Description: "Your node's Color on the peer to peer network",
 					Required:    true,
 				},
+
+				// Optional fields.
+				"wumbo": schema.BoolAttribute{
+					Description: "When enabled, LND will accept Wumbo channels",
+					Optional:    true,
+				},
+				"webhook": schema.StringAttribute{
+					Description: "Your webhook endpoint if you wish to receive webhook events",
+					Optional:    true,
+				},
+				"webhook_secret": schema.StringAttribute{
+					Description: "Webhook secret used to validate the webhook is coming from us",
+					Optional:    true,
+					Sensitive:   true,
+				},
+				"minchansize": schema.StringAttribute{
+					Description: "The minimum channel size your node will accept",
+					Optional:    true,
+				},
+				"maxchansize": schema.StringAttribute{
+					Description: "The maximum channel size your node will accept",
+					Optional:    true,
+				},
+				"autocompaction": schema.BoolAttribute{
+					Description: "When enabled, LND will automatically compact the databases on startup",
+					Optional:    true,
+				},
+				"defaultfeerate": schema.StringAttribute{
+					Description: "Your default fee rate for your channels",
+					Optional:    true,
+				},
+				"basefee": schema.StringAttribute{
+					Description: "Your base fee rate for your channels",
+					Optional:    true,
+				},
+				"amp": schema.BoolAttribute{
+					Description: "Enables AMP",
+					Optional:    true,
+				},
+				"wtclient": schema.BoolAttribute{
+					Description: "Enables the watchtower client",
+					Optional:    true,
+				},
+				"maxpendingchannels": schema.StringAttribute{
+					Description: "Maximum number of pending channels allowed for a single peer",
+					Optional:    true,
+				},
+				"allowcircularroute": schema.BoolAttribute{
+					Description: "If enabled, allows a payment to exit and enter the same channel",
+					Optional:    true,
+				},
+				"numgraphsyncpeers": schema.StringAttribute{
+					Description: "Number of peers used for syncing the graph",
+					Optional:    true,
+				},
+				"gccanceledinvoicesonstartup": schema.BoolAttribute{
+					Description: "If enabled, deletes cancelled invoices only when LND starts up",
+					Optional:    true,
+				},
+				"gccanceledinvoicesonthefly": schema.BoolAttribute{
+					Description: "If enabled, deletes cancelled invoices while LND is running",
+					Optional:    true,
+				},
+				"torskipproxyforclearnettargets": schema.BoolAttribute{
+					Description: "Optimization for clearnet peers. See LND Docs.",
+					Optional:    true,
+				},
+				"rpcmiddleware": schema.BoolAttribute{
+					Description: "Enables the rpcmiddleware, which can interecept certain rpc calls. See LND Docs.",
+					Optional:    true,
+				},
+				"optionscidalias": schema.BoolAttribute{
+					Description: "If enabled, and optionscidalias is also enabled, it is possible to create zeroconf channels. See lnd docs.",
+					Optional:    true,
+				},
+				"zeroconf": schema.BoolAttribute{
+					Description: "If enabled, and zeroconf is also enabled, it is possible to create zeroconf channels. See lnd docs.",
+					Optional:    true,
+				},
 			},
 		},
 	},
@@ -103,13 +183,32 @@ type nodeModel struct {
 	Type          types.String `tfsdk:"type"`
 	Name          types.String `tfsdk:"name"`
 	Settings      struct {
-		AutoPilot types.Bool     `tfsdk:"autopilot"`
-		Grpc      types.Bool     `tfsdk:"grpc"`
-		Rest      types.Bool     `tfsdk:"rest"`
-		Keysend   types.Bool     `tfsdk:"keysend"`
-		Whitelist []types.String `tfsdk:"whitelist"`
-		Alias     types.String   `tfsdk:"alias"`
-		Color     types.String   `tfsdk:"color"`
+		AutoPilot                      types.Bool     `tfsdk:"autopilot"`
+		Grpc                           types.Bool     `tfsdk:"grpc"`
+		Rest                           types.Bool     `tfsdk:"rest"`
+		Keysend                        types.Bool     `tfsdk:"keysend"`
+		Whitelist                      []types.String `tfsdk:"whitelist"`
+		Alias                          types.String   `tfsdk:"alias"`
+		Color                          types.String   `tfsdk:"color"`
+		Wumbo                          types.Bool     `tfsdk:"wumbo"`
+		Webhook                        types.String   `tfsdk:"webhook"`
+		WebhookSecret                  types.String   `tfsdk:"webhook_secret"`
+		MinChanSize                    types.String   `tfsdk:"minchansize"`
+		MaxChanSize                    types.String   `tfsdk:"maxchansize"`
+		AutoCompactation               types.Bool     `tfsdk:"autocompaction"`
+		DefaultFeeRate                 types.String   `tfsdk:"defaultfeerate"`
+		BaseFee                        types.String   `tfsdk:"basefee"`
+		Amp                            types.Bool     `tfsdk:"amp"`
+		WtClient                       types.Bool     `tfsdk:"wtclient"`
+		MaxPendingChannels             types.String   `tfsdk:"maxpendingchannels"`
+		AllowCircularRoute             types.Bool     `tfsdk:"allowcircularroute"`
+		NumGraphSyncPeers              types.String   `tfsdk:"numgraphsyncpeers"`
+		GCCanceledInvoicesOnStartUp    types.Bool     `tfsdk:"gccanceledinvoicesonstartup"`
+		GCCanceledInvoicesOnTheFly     types.Bool     `tfsdk:"gccanceledinvoicesonthefly"`
+		TorSkipProxyForClearnetTargets types.Bool     `tfsdk:"torskipproxyforclearnettargets"`
+		RPCMiddleware                  types.Bool     `tfsdk:"rpcmiddleware"`
+		OptionSCIDAlias                types.Bool     `tfsdk:"optionscidalias"`
+		ZeroConf                       types.Bool     `tfsdk:"zeroconf"`
 	} `tfsdk:"settings"`
 }
 
@@ -216,7 +315,9 @@ func (r *NodeResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 }
 func (r *NodeResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	resp.Diagnostics.AddError("Update not implemented", "You cannot update a node")
 }
+
 func (r *NodeResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state nodeModel
 
