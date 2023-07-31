@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -89,6 +90,9 @@ func (c *Client) CreateNode(ctx context.Context, m *nodeModel) error {
 	// Wait for the desired state.
 	var nodeStatus string
 	for nodeStatus != "waiting_init" {
+		// Do not kill the API.
+		time.Sleep(3 * time.Second)
+
 		node, err := c.voltage.PostNodeWithResponse(ctx, voltage.PostNodeJSONRequestBody{
 			NodeId: nodeID,
 		})
